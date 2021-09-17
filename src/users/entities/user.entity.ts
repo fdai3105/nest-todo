@@ -1,20 +1,34 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { hash } from 'typeorm/util/StringUtils';
+import { Todo } from '../../todo/entities/todo.entity';
+import { Category } from '../../category/entities/category.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  readonly id: number;
+  id: number;
 
   @Column()
-  readonly name: string;
+  name: string;
 
   @Column()
-  readonly email: string;
+  email: string;
 
   @Column()
   pass: string;
 
   @Column()
-  readonly phone: string;
+  phone: string;
+
+  @OneToMany(() => Todo, (object) => object.user)
+  todos: Todo[];
+
+  @OneToMany(() => Category, (object) => object.user)
+  categories: Category[];
 }

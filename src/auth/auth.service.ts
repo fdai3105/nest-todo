@@ -4,6 +4,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { HttpResponse } from '../http-response';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,15 +13,25 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(email: string, pass: string) {
-    const user = await this.usersService.findOne(email);
+  async login(loginDto: LoginDto) {
+    const user = await this.usersService.findByEmail(loginDto.email);
     if (user) {
-      const compare = await bcrypt.compare(pass, user.pass);
-      if (user && compare)
+      const compare = await bcrypt.compare(loginDto.pass, user.pass);
+      if (user && compare) {
         return {
           ...user,
-          access_token: this.jwtService.sign({ email: email, pass: pass }),
+          accessToken: this.jwtService.sign({
+            email: loginDto.email,
+            pass: loginDto.pass,
+          }),
         };
+      }
+      if (!compare) {
+        throw new HttpException(
+          'Wrong password or email',
+          HttpStatus.FORBIDDEN,
+        );
+      }
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     } else {
       throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
@@ -28,15 +39,17 @@ export class AuthService {
   }
 
   async register(user: RegisterDto) {
-    const check = await this.usersService.findOne(user.email);
+    const check = await this.usersService.findByEmail(user.email);
     if (check) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
     try {
+      const temp = user.pass;
       await this.usersService.insert(user);
-      return new HttpResponse(HttpStatus.OK, 'Register success');
+      const login = await this.login({ email: user.email, pass: temp });
+      return new HttpResponse(HttpStatus.OK, 'Register success', login);
     } catch (e) {
-      throw new HttpException('Something wrong: ' + e, HttpStatus.BAD_REQUEST);
+      throw new HttpException(e, HttpStatus.BAD_REQUEST);
     }
   }
 }

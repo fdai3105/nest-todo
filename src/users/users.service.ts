@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(@InjectRepository(User) private repository: Repository<User>) {}
 
-  findOne(email: string) {
+  findByEmail(email: string) {
     return this.repository.findOne({ where: { email: email } });
   }
 

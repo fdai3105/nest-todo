@@ -1,11 +1,13 @@
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Category } from '../../category/entities/category.entity';
 
 @Entity()
 export class Todo {
@@ -15,12 +17,24 @@ export class Todo {
   @Column()
   todo: string;
 
-  @Column()
+  @Column({ nullable: true })
   desc: string;
 
+  @Column({ default: false })
+  complete: boolean;
+
+  @Column({ nullable: true })
+  color: string;
+
+  @ManyToOne(() => User, (object) => object.id, { nullable: false })
+  user: User;
+
+  @ManyToOne(() => Category, (object) => object.todos)
+  category: Category;
+
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updatedAt: Date;
 }

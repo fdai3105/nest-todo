@@ -8,24 +8,30 @@ import {
   Delete,
   UsePipes,
   ValidationPipe,
+  UseGuards,
+  Request,
+  Req,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('todo')
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todoService.create(createTodoDto);
+  create(@Request() req, @Body() createTodoDto: CreateTodoDto) {
+    return this.todoService.create(createTodoDto, req.user.email);
   }
 
   @Get()
-  findAll() {
-    return this.todoService.findAll();
+  @UseGuards(JwtAuthGuard)
+  findAll(@Req() req) {
+    return this.todoService.findAll(req.user.email);
   }
 
   @Get(':id')
