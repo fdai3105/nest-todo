@@ -27,11 +27,12 @@ export class CategoryService {
     }
   }
 
-  async findAll(email: string) {
+  async findAll(id: number) {
     try {
       const arr = [];
-      const user = await this.usersService.findByEmail(email);
-      const categories = await this.repository.find({ where: { user: user } });
+      const categories = await this.repository.find({
+        where: { user: { id: id } },
+      });
       for (const category of categories) {
         const todos = await this.todoService.findByCate(category);
         arr.push({

@@ -1,11 +1,4 @@
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { hash } from 'typeorm/util/StringUtils';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Todo } from '../../todo/entities/todo.entity';
 import { Category } from '../../category/entities/category.entity';
 

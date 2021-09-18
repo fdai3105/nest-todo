@@ -34,7 +34,10 @@ export class TodoService {
 
   async findAll(email: string) {
     const user = await this.usersService.findByEmail(email);
-    const todos = await this.repository.find({ where: { user: user } });
+    const todos = await this.repository.find({
+      where: { user: user },
+      order: { createdAt: 'DESC' },
+    });
     return new HttpResponse(HttpStatus.OK, 'success', todos);
   }
 
