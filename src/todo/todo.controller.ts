@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   Request,
   UseGuards,
@@ -34,18 +35,36 @@ export class TodoController {
     return this.todoService.findAll(req.user.email);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get()
+  findOne(@Query('id') id: string) {
     return this.todoService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
+  @Patch()
+  update(@Query('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
     return this.todoService.update(+id, updateTodoDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete()
+  remove(@Query('id') id: string) {
     return this.todoService.remove(+id);
+  }
+
+  @Get('today-tasks')
+  @UseGuards(JwtAuthGuard)
+  getTodayTask(@Req() req) {
+    return this.todoService.todayTasks(req.user.id);
+  }
+
+  @Get('find-by-category')
+  @UseGuards(JwtAuthGuard)
+  findByCategory(@Query('id') id: number) {
+    return this.todoService.findByCate(id);
+  }
+
+  @Post('change-complete')
+  @UseGuards(JwtAuthGuard)
+  changeComplete(@Body() body) {
+    return this.todoService.changeComplete(body.id, body.complete);
   }
 }

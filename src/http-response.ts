@@ -1,5 +1,5 @@
 export class HttpResponse {
   constructor(code: number, message: string, data?: any) {
-    return { code: code, message: message, data: data };
+    return { code: code, message: message, data: data ?? [] };
   }
 }

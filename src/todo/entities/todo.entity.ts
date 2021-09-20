@@ -23,8 +23,8 @@ export class Todo {
   @Column({ default: false })
   complete: boolean;
 
-  @Column({ nullable: true })
-  color: string;
+  @Column()
+  due: Date;
 
   @ManyToOne(() => User, (object) => object.id, { nullable: false })
   user: User;

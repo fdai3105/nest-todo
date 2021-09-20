@@ -7,11 +7,13 @@ import { Repository } from 'typeorm';
 import { HttpResponse } from '../http-response';
 import { UsersService } from '../users/users.service';
 import { TodoService } from 'src/todo/todo.service';
+import { Todo } from '../todo/entities/todo.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category) private repository: Repository<Category>,
+    @InjectRepository(Todo) private todoRepository: Repository<Todo>,
     private readonly usersService: UsersService,
     private readonly todoService: TodoService,
   ) {}
@@ -34,7 +36,9 @@ export class CategoryService {
         where: { user: { id: id } },
       });
       for (const category of categories) {
-        const todos = await this.todoService.findByCate(category);
+        const todos = await this.todoRepository.find({
+          where: { category: category },
+        });
         arr.push({
           ...category,
           total: todos.length,
@@ -55,7 +59,16 @@ export class CategoryService {
     return `This action updates a #${id} category`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    try {
+      await this.repository.delete({ id: id });
+      return new HttpResponse(HttpStatus.OK, 'Delete category success');
+    } catch (e) {
+      console.log(e);
+      return new HttpResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Delete category fail',
+      );
+    }
   }
 }

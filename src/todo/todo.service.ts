@@ -21,6 +21,7 @@ export class TodoService {
       await this.repository.insert({
         todo: createTodoDto.todo,
         desc: createTodoDto.desc,
+        category: { id: createTodoDto.categoryID },
         user: user,
       });
       return new HttpResponse(HttpStatus.OK, 'created success');
@@ -53,7 +54,44 @@ export class TodoService {
     return this.repository.delete(id);
   }
 
-  async findByCate(category: Category) {
-    return this.repository.find({ where: { category: category } });
+  async findByCate(categoryID: number) {
+    try {
+      const todos = await this.repository.find({
+        where: { category: { id: categoryID } },
+      });
+      return new HttpResponse(HttpStatus.OK, 'success', todos);
+    } catch (e) {
+      return new HttpResponse(HttpStatus.OK, 'findByCate failed');
+    }
+  }
+
+  async todayTasks(userID: number) {
+    try {
+      const todos = await this.repository.find({
+        where: { user: { id: userID }, due: new Date().getDay() },
+        order: { due: 'ASC' },
+      });
+      return new HttpResponse(HttpStatus.OK, 'success', todos);
+    } catch (e) {
+      return new HttpResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'todayTask failed',
+      );
+    }
+  }
+
+  async changeComplete(id: number, complete: boolean) {
+    try {
+      await this.repository.update(id, { complete: complete });
+      return new HttpResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'changeComplete success',
+      );
+    } catch (e) {
+      return new HttpResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'changeComplete failed',
+      );
+    }
   }
 }
